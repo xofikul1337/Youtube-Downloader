@@ -36,7 +36,9 @@ export default async function handler(req, res) {
       return res.status(500).json({ success: false });
     }
 
-    const m = d.modalHtml.match(/https:\/\/nb\.dlsrv\.online\/[a-z0-9]+/i);
+    const m = d.modalHtml.match(
+      /https:\/\/yt1s-worker-[^"]+/i
+    );
 
     if (!m) {
       return res.status(404).json({ success: false });
