@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     }
 
     const m = d.modalHtml.match(
-      /https:\/\/yt1s-worker-[^"]+/i
+      /window\.location\.href='(https:\/\/yt1s-worker-[^']+)'/i
     );
 
     if (!m) {
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
       success: true,
       videoId: videoId,
       quality: q,
-      downloadLink: m[0]
+      downloadLink: m[1]
     });
 
   } catch (e) {
