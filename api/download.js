@@ -1,22 +1,31 @@
 import fetch from "node-fetch";
 
-const ALLOWED_QUALITIES = ["64", "128", "192", "256", "320"];
-
 export default async function handler(req, res) {
   try {
-    const { videoId, quality } = req.query;
+    const { videoId, type } = req.query;
 
-    if (!videoId) {
+    if (!videoId || !type) {
       return res.status(400).json({ success: false });
     }
 
-    const q = quality || "320";
+    let apiUrl = "";
+    let quality = "";
 
-    if (!ALLOWED_QUALITIES.includes(q)) {
+    if (type === "audio") {
+      apiUrl = "https://dlsrv.online/api/download/mp3";
+      quality = "320";
+    }
+
+    if (type === "video") {
+      apiUrl = "https://dlsrv.online/api/download/mp4";
+      quality = "720p";
+    }
+
+    if (!apiUrl) {
       return res.status(400).json({ success: false });
     }
 
-    const r = await fetch("https://dlsrv.online/api/download/mp3", {
+    const r = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "User-Agent": "Mozilla/5.0 (Linux; Android 10)",
@@ -26,7 +35,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         videoId: videoId,
-        quality: q
+        quality: quality
       })
     });
 
@@ -46,12 +55,13 @@ export default async function handler(req, res) {
 
     return res.json({
       success: true,
+      type: type,
       videoId: videoId,
-      quality: q,
+      quality: quality,
       downloadLink: m[1]
     });
 
-  } catch (e) {
+  } catch {
     return res.status(500).json({ success: false });
   }
 }
