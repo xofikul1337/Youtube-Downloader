@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
     if (type === "video") {
       apiUrl = "https://dlsrv.online/api/download/mp4";
-      quality = "720p";
+      quality = "720";
     }
 
     if (!apiUrl) {
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
       success: true,
       type: type,
       videoId: videoId,
-      quality: quality,
+      quality: type === "video" ? quality + "p" : quality,
       downloadLink: m[1]
     });
 
