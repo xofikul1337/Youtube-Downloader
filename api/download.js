@@ -1,9 +1,13 @@
+// /api/download.js
 import fetch from "node-fetch";
 
 export default async function handler(req, res) {
   try {
     const { videoId } = req.query;
-    if (!videoId) return res.json({ success: false });
+
+    if (!videoId) {
+      return res.json({ success: false });
+    }
 
     const r = await fetch("https://dlsrv.online/api/download/mp3", {
       method: "POST",
@@ -20,7 +24,6 @@ export default async function handler(req, res) {
           "\"Not(A:Brand\";v=\"8\", \"Chromium\";v=\"144\", \"Google Chrome\";v=\"144\"",
         "sec-ch-ua-mobile": "?1",
         "sec-ch-ua-platform": "\"Android\""
-        // ❌ Cookie intentionally বাদ – Vercel এ rotate করে
       },
       body: JSON.stringify({
         videoId: videoId,
@@ -28,20 +31,28 @@ export default async function handler(req, res) {
       })
     });
 
-    const d = await r.json();
+    const data = await r.json();
 
-    const m = d?.modalHtml?.match(
+    if (!data || !data.modalHtml) {
+      return res.json({ success: false });
+    }
+
+    const match = data.modalHtml.match(
       /window\.location\.href='(https:\/\/yt1s-worker-[^']+)'/i
     );
 
-    if (!m) return res.json({ success: false });
+    if (!match) {
+      return res.json({ success: false });
+    }
 
     return res.json({
       success: true,
-      downloadLink: m[1]
+      videoId: videoId,
+      quality: "320",
+      downloadLink: match[1]
     });
 
-  } catch (e) {
+  } catch (err) {
     return res.json({ success: false });
   }
 }
