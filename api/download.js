@@ -1,18 +1,10 @@
 import fetch from "node-fetch";
 
-const ALLOWED_QUALITIES = ["64", "128", "192", "256", "320"];
-
 export default async function handler(req, res) {
   try {
-    const { videoId, quality } = req.query;
+    const { videoId } = req.query;
 
     if (!videoId) {
-      return res.status(400).json({ success: false });
-    }
-
-    const q = quality || "320";
-
-    if (!ALLOWED_QUALITIES.includes(q)) {
       return res.status(400).json({ success: false });
     }
 
@@ -26,28 +18,24 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         videoId: videoId,
-        quality: q
+        quality: "320"
       })
     });
 
     const d = await r.json();
 
-    if (!d.modalHtml) {
-      return res.status(500).json({ success: false });
-    }
-
-    const m = d.modalHtml.match(
+    const m = d?.modalHtml?.match(
       /window\.location\.href='(https:\/\/yt1s-worker-[^']+)'/i
     );
 
     if (!m) {
-      return res.status(404).json({ success: false });
+      return res.status(500).json({ success: false });
     }
 
     return res.json({
       success: true,
-      videoId: videoId,
-      quality: q,
+      videoId,
+      quality: "320",
       downloadLink: m[1]
     });
 
